@@ -1,0 +1,33 @@
+
+# 2025-05-27 21:34:12.417510
++/add docker-compose.yml
+
+# 2025-05-27 21:34:20.177949
++/add frontend\dockerfile
+
+# 2025-05-27 21:34:25.250576
++/add server\dockerfile
+
+# 2025-05-27 21:36:39.781216
++The server application is a FastAPI application, and the frontend application is a NExt.js application. Looking at the dockerfiles and the docker compose file used to spin up the services the app depends upon. COuld you write me a README.md file, that describes what the application is, how you can run it, what software a user must install to be able to run it. Essentially a user guide for the application and how to run it. Please include a section about how developers should follow the correct development guidelines for both Python and Javascript
+
+# 2025-05-27 21:37:05.974122
++Y
+
+# 2025-05-27 21:37:13.909514
++N
+
+# 2025-05-27 21:37:18.581463
++M
+
+# 2025-05-27 21:37:26.246468
++N
+
+# 2025-05-27 21:38:07.014851
++/add README.md
+
+# 2025-05-27 21:38:09.494878
++Y
+
+# 2025-05-27 21:39:07.240253
++So I didn't want you to update teh readme in the frontend application, instead I wanted you to create a new Readme at the route directory. I've added the correct ream me to the chat, can you now put the old readme back to how it was and move the new readme you created into the root directroies readme
