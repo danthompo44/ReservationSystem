@@ -1,6 +1,7 @@
-.aider*
+**aider*
 **/.venv/
 **/venv/
 **/.idea/
 /.idea/
 /frontend/node_modules/
+**/__pycache/
