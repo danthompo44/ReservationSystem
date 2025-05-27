@@ -1,13 +1,13 @@
 services:
   api:
     build:
-      context: ./api
+      context: server
     ports:
       - "8000:8000"
     depends_on:
       - mongodb
     volumes:
-      - "./api:/app"  # Mount the current directory to /app in the container
+      - "./server:/app"  # Mount the current directory to /app in the container
     networks:
       - reservation-api
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
