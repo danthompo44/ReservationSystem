@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reservation System Application
 
-## Getting Started
+## Overview
+The Reservation System is a web application built using FastAPI for the backend and Next.js for the frontend. It allows users to manage reservations and topologies in a seamless manner.
 
-First, run the development server:
+## Prerequisites
+To run this application, you need to have the following software installed on your machine:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Docker**: Ensure you have Docker installed to run the application in containers.
+- **Docker Compose**: This is included with Docker Desktop installations, but if you are using Linux, you may need to install it separately.
+- **Node.js**: Required for the frontend application. You can download it from [Node.js official website](https://nodejs.org/).
+- **Python**: Required for the backend application. You can download it from [Python official website](https://www.python.org/).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running the Application
+To run the application, follow these steps:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository to your local machine:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Build and start the application using Docker Compose:
+   ```bash
+   docker-compose up --build
+   ```
 
-## Learn More
+3. Access the frontend application at `http://localhost:3000` and the backend API at `http://localhost:8000`.
 
-To learn more about Next.js, take a look at the following resources:
+## Development Guidelines
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Python (Backend)
+- Follow PEP 8 style guidelines for Python code.
+- Use type hints for function signatures to improve code readability and maintainability.
+- Ensure that all dependencies are listed in `requirements.txt`.
+- Write unit tests for your code and ensure they pass before committing changes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### JavaScript (Frontend)
+- Follow the Airbnb JavaScript Style Guide for consistent code formatting.
+- Use ES6+ features where applicable, such as arrow functions and destructuring.
+- Ensure that all dependencies are listed in `package.json`.
+- Write unit tests for your components and ensure they pass before committing changes.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Conclusion
+This README provides a basic overview of the Reservation System application, how to set it up, and guidelines for contributing to the project. For further information, please refer to the documentation within the codebase.
