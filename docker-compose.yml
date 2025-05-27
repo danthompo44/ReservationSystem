@@ -12,6 +12,19 @@ services:
       - reservation-api
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
+  frontend:
+    build:
+      context: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    volumes:
+      - "./frontend:/app"
+    networks:
+      - reservation-api
+    command: ["next", "run", "dev", "--turbopack"]
+
   mongodb:
     image: mongo:latest
     ports:
