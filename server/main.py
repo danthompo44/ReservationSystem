@@ -21,19 +21,6 @@ objects_collection = db['objects']
 topologies_collection = db['topologies']  # New collection for topologies
 reservations_collection = db['reservations']  # New collection for reservations
 
-def format_datetime(datetime_str: str) -> str:
-    """Convert a datetime string to ISO 8601 format."""
-    dt = datetime.fromisoformat(datetime_str)
-    return dt.isoformat()
-
-@app.post("/schemas/")
-async def create_schema(schema_data: dict):
-    if 'datetime_field' in schema_data:
-        schema_data['datetime_field'] = format_datetime(schema_data['datetime_field'])
-    # Insert schema_data into the database
-    await collection.insert_one(schema_data)
-    return schema_data
-
 # Include the routers
 app.include_router(schema_router, prefix="/schemas", tags=["schemas"])
 app.include_router(reservation_router, prefix="/reservations", tags=["reservations"])

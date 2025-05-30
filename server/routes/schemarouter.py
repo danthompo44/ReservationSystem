@@ -4,29 +4,33 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from basemodels import ObjectSchema
+from server.routes.basemodels import InsertedSchema, SchemaModel
+from utils import datetime_as_string
 
 router = APIRouter()
 
-client = AsyncIOMotorClient('mongodb://mongodb:27017')
+client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client['reservation-system']
 collection = db['schemas']
 
 
-@router.post("/")
-async def create_schema(schema: ObjectSchema):
+@router.post("/", response_model=InsertedSchema)
+async def create_schema(schema: SchemaModel):
     existing_schema = await collection.find_one({"name": schema.name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")
 
-    schema_data = schema.dict()
-    schema_data['created_at'] = datetime.now()  # Add created_at field
+    schema_data = schema.model_dump()
+    schema_data['created_at'] = datetime_as_string(datetime.now())# Add created_at field
     result = await collection.insert_one(schema_data)
-    return {
-        "_id": str(result.inserted_id),
+    schema_data.pop('_id')
+
+    res = {
+        "id": str(result.inserted_id),
         "message": "Schema created successfully",
         "data": schema_data
     }
+    return res
 
 
 @router.get("/")
@@ -37,7 +41,7 @@ async def read_schemas():
     return schemas
 
 
-@router.get("/{schema_id}", response_model=ObjectSchema)
+@router.get("/{schema_id}")
 async def read_schema(schema_id: str):
     schema = await collection.find_one({"_id": ObjectId(schema_id)})
     if schema is None:
@@ -45,8 +49,8 @@ async def read_schema(schema_id: str):
     return {**schema, "_id": str(schema["_id"])}
 
 
-@router.put("/{schema_id}", response_model=ObjectSchema)
-async def update_schema(schema_id: str, schema: ObjectSchema):
+@router.put("/{schema_id}")
+async def update_schema(schema_id: str, schema):
     result = await collection.update_one({"_id": ObjectId(schema_id)}, {"$set": schema.dict()})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Schema not found")
