@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Literal, Any
 
 from bson import ObjectId
@@ -36,7 +37,8 @@ class SchemaInsertRequest(BaseModel):
 
 class InsertedSchema(SchemaInsertRequest):
     id: PyObjectId = Field(alias="_id")
-    created_at: str
+    created_at: datetime
+    updated_at: datetime
 
     # Field serializer tell FastAPI how to serialise ObjectIds in the response
     @field_serializer("id")
