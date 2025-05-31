@@ -1,17 +1,27 @@
 from datetime import datetime
-from typing import List
+from typing import List, Annotated
 
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path, Body
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from server.routes.basemodels import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema
+from routes.basemodels import SchemaDeletedResponse, PyObjectId
+from server.routes.basemodels import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema, SchemaUpdateRequest
 
 router = APIRouter()
 
 client = AsyncIOMotorClient('mongodb://localhost:27017')
 db = client['reservation-system']
 collection = db['schemas']
+
+async def __get_schema(_id) -> InsertedSchema:
+    schema = await collection.find_one({"_id": ObjectId(_id)})
+    if schema is None:
+        raise HTTPException(status_code=404, detail="Schema not found")  #
+
+    res_model = InsertedSchema(**schema)
+    return res_model
+
 
 
 @router.post("/", response_model=CreatedSchemaResponse)
@@ -46,25 +56,29 @@ async def read_schemas():
 
 @router.get("/{schema_id}", response_model=InsertedSchema)
 async def read_schema(schema_id: str):
-    schema = await collection.find_one({"_id": ObjectId(schema_id)})
-    if schema is None:
-        raise HTTPException(status_code=404, detail="Schema not found")#
-
-    res_model = InsertedSchema(**schema)
-    return res_model
+    return await __get_schema(schema_id)
 
 
-@router.put("/{schema_id}")
-async def update_schema(schema_id: str, schema):
-    result = await collection.update_one({"_id": ObjectId(schema_id)}, {"$set": schema.dict()})
+@router.put("/{schema_id}", response_model=InsertedSchema)
+async def update_schema(
+    schema_id: Annotated[str, Path(title="The schema id to update")],
+    schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")]
+):
+    update_dict = schema.model_dump()
+    update_dict["updated_at"] = datetime.now()
+    result = await collection.update_one({"_id": ObjectId(schema_id)}, {"$set": update_dict})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Schema not found")
-    return {**schema.dict(), "_id": schema_id}
+
+    latest = await __get_schema(schema_id)
+    return latest
 
 
-@router.delete("/{schema_id}")
+@router.delete("/{schema_id}", response_model=SchemaDeletedResponse)
 async def delete_schema(schema_id: str):
-    result = await collection.delete_one({"_id": ObjectId(schema_id)})
+    _id = PyObjectId(schema_id)
+
+    result = await collection.delete_one({"_id": _id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Schema not found")
-    return {"detail": "Schema deleted"}
+    return SchemaDeletedResponse(_id=_id, detail="Schema deleted successfully")

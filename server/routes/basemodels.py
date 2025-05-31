@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Any
+from typing import List, Literal, Any, Optional
 
 from bson import ObjectId
 from pydantic import BaseModel, Field, GetCoreSchemaHandler, field_serializer
@@ -34,6 +34,24 @@ class SchemaInsertRequest(BaseModel):
     name: str
     parameters: List[ParameterType]
 
+class SchemaUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    parameters: Optional[List[ParameterType]] = None
+
+
+# TODO - Update to have Object ID base basemodel
+class SchemaDeletedResponse(BaseModel):
+    id: PyObjectId = Field(alias="_id")
+    detail: str
+
+    # Field serializer tell FastAPI how to serialise ObjectIds in the response
+    @field_serializer("id")
+    def serialize_object_id(self, v: ObjectId, _info):
+        return str(v)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
 
 class InsertedSchema(SchemaInsertRequest):
     id: PyObjectId = Field(alias="_id")
