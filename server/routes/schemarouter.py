@@ -5,7 +5,7 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from server.routes.basemodels import InsertedSchemaResponse, SchemaInsertRequest
+from server.routes.basemodels import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema
 from utils import datetime_as_string
 
 router = APIRouter()
@@ -15,7 +15,7 @@ db = client['reservation-system']
 collection = db['schemas']
 
 
-@router.post("/", response_model=InsertedSchemaResponse)
+@router.post("/", response_model=CreatedSchemaResponse)
 async def create_schema(schema: SchemaInsertRequest):
     existing_schema = await collection.find_one({"name": schema.name})
     if existing_schema:
@@ -33,24 +33,26 @@ async def create_schema(schema: SchemaInsertRequest):
 
     }
 
-    res_model = InsertedSchemaResponse(**res)
+    res_model = CreatedSchemaResponse(**res)
     return res_model
 
 
-@router.get("/", response_model=List[InsertedSchemaResponse])
+@router.get("/", response_model=List[InsertedSchema])
 async def read_schemas():
     schemas = []
     async for schema in collection.find():
-        schemas.append({**schema, "_id": str(schema["_id"])})  # Correctly format schema
+        schemas.append(InsertedSchema(**schema))  # Correctly format schema
     return schemas
 
 
-@router.get("/{schema_id}")
+@router.get("/{schema_id}", response_model=InsertedSchema)
 async def read_schema(schema_id: str):
     schema = await collection.find_one({"_id": ObjectId(schema_id)})
     if schema is None:
-        raise HTTPException(status_code=404, detail="Schema not found")
-    return {**schema, "_id": str(schema["_id"])}
+        raise HTTPException(status_code=404, detail="Schema not found")#
+
+    res_model = InsertedSchema(**schema)
+    return res_model
 
 
 @router.put("/{schema_id}")

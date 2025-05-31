@@ -50,7 +50,7 @@ class InsertedSchema(SchemaInsertRequest):
 
 
 
-class InsertedSchemaResponse(BaseModel):
+class CreatedSchemaResponse(BaseModel):
     id: PyObjectId = Field(alias="_id")
     message: str
     data: InsertedSchema
