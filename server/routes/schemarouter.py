@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException
@@ -23,17 +24,20 @@ async def create_schema(schema: SchemaInsertRequest):
     schema_data = schema.model_dump()
     schema_data['created_at'] = datetime_as_string(datetime.now())# Add created_at field
     result = await collection.insert_one(schema_data)
-    schema_data.pop('_id')
 
     res = {
-        "id": str(result.inserted_id),
+        "_id": result.inserted_id,
         "message": "Schema created successfully",
         "data": schema_data
+
+
     }
-    return res
+
+    res_model = InsertedSchemaResponse(**res)
+    return res_model
 
 
-@router.get("/")
+@router.get("/", response_model=List[InsertedSchemaResponse])
 async def read_schemas():
     schemas = []
     async for schema in collection.find():

@@ -1,8 +1,28 @@
-from typing import List, Literal
+from typing import List, Literal, Any
 
 from bson import ObjectId
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, GetCoreSchemaHandler, field_serializer
+from pydantic_core import core_schema
 
+
+class PyObjectId(ObjectId):
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> core_schema.CoreSchema:
+        return core_schema.no_info_after_validator_function(
+            cls.validate,
+            core_schema.union_schema([core_schema.str_schema(), core_schema.is_instance_schema(ObjectId)])
+        )
+
+    @classmethod
+    def validate(cls, v: Any) -> ObjectId:
+        if isinstance(v, ObjectId):
+            return v
+        if isinstance(v, str) and ObjectId.is_valid(v):
+            return ObjectId(v)
+        raise ValueError("Invalid ObjectId")
+
+    def __str__(self) -> str:
+        return str(super().__str__())
 
 class ParameterType(BaseModel):
     name: str
@@ -15,10 +35,31 @@ class SchemaInsertRequest(BaseModel):
 
 
 class InsertedSchema(SchemaInsertRequest):
+    id: PyObjectId = Field(alias="_id")
     created_at: str
+
+    # Field serializer tell FastAPI how to serialise ObjectIds in the response
+    @field_serializer("id")
+    def serialize_object_id(self, v: ObjectId, _info):
+        return str(v)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
+
+
 
 
 class InsertedSchemaResponse(BaseModel):
-    id: str
+    id: PyObjectId = Field(alias="_id")
     message: str
     data: InsertedSchema
+
+    # Field serializer tell FastAPI how to serialise ObjectIds in the response
+    @field_serializer("id")
+    def serialize_object_id(self, v: ObjectId, _info):
+        return str(v)
+
+    class Config:
+        populate_by_name = True
+        json_encoders = {ObjectId: str}
