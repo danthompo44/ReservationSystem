@@ -4,7 +4,7 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from server.routes.basemodels import InsertedSchema, SchemaModel
+from server.routes.basemodels import InsertedSchemaResponse, SchemaInsertRequest
 from utils import datetime_as_string
 
 router = APIRouter()
@@ -14,8 +14,8 @@ db = client['reservation-system']
 collection = db['schemas']
 
 
-@router.post("/", response_model=InsertedSchema)
-async def create_schema(schema: SchemaModel):
+@router.post("/", response_model=InsertedSchemaResponse)
+async def create_schema(schema: SchemaInsertRequest):
     existing_schema = await collection.find_one({"name": schema.name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")

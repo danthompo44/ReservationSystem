@@ -9,12 +9,16 @@ class ParameterType(BaseModel):
     type: Literal['string', 'int', 'boolean', 'float', 'list', 'date']
 
 
-class SchemaModel(BaseModel):
+class SchemaInsertRequest(BaseModel):
     name: str
     parameters: List[ParameterType]
 
 
-class InsertedSchema(BaseModel):
-    name: str
-    parameters: List[ParameterType]
-    data: dict
+class InsertedSchema(SchemaInsertRequest):
+    created_at: str
+
+
+class InsertedSchemaResponse(BaseModel):
+    id: str
+    message: str
+    data: InsertedSchema
