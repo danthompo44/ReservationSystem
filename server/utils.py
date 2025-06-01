@@ -3,6 +3,8 @@ from typing import Dict, Any, Literal, Annotated
 
 from pydantic import constr, conint, confloat, create_model, BaseModel, Field
 
+from basemodels.schema_base_models import FieldDefinition
+
 
 def datetime_as_string(d: datetime):
     return d.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -49,7 +51,7 @@ def __build_num_constraints(fields: dict, required: bool, type_name: str):
 
 def build_constrained_field(fields: Dict[str, Any]):
     type_name: str = fields.get("type")
-    required: bool = fields.get("required", False)
+    required: bool = fields.get("required", True)
     enum: list = fields.get("enum")
 
     # Handle enum fields
@@ -94,9 +96,9 @@ def build_pydantic_model(name: str, fields: Dict[str, Any]):
     return create_model(name, **model_fields)
 
 
-model = build_pydantic_model(schema["schema_name"], schema["fields"])
-model_instance = model(name="John", price=10.0, category="book")
-print("########################  SCHEMA #################################")
-print(model_instance.model_json_schema())
-print("########################  DATA  #################################")
-print(model_instance.model_dump())
+# model = build_pydantic_model(schema["schema_name"], schema["fields"])
+# model_instance = model(name="John", price=10.0, category="book")
+# print("########################  SCHEMA #################################")
+# print(model_instance.model_json_schema())
+# print("########################  DATA  #################################")
+# print(model_instance.model_dump())

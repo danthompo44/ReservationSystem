@@ -5,8 +5,8 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Path, Body
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from routes.basemodels import SchemaDeletedResponse, PyObjectId
-from server.routes.basemodels import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema, SchemaUpdateRequest
+from basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
+from basemodels.schema_base_models import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema, SchemaUpdateRequest
 
 router = APIRouter()
 
@@ -26,11 +26,12 @@ async def __get_schema(_id) -> InsertedSchema:
 
 @router.post("/", response_model=CreatedSchemaResponse)
 async def create_schema(schema: SchemaInsertRequest):
-    existing_schema = await collection.find_one({"name": schema.name})
+    existing_schema = await collection.find_one({"name": schema.schema_name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")
 
-    schema_data = schema.model_dump()
+    schema_data = schema.model_dump(exclude_none=True)
+
     now = datetime.now()
     schema_data['created_at'] = now # Add created_at field
     schema_data["updated_at"] = now
