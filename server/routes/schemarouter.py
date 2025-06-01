@@ -3,15 +3,14 @@ from typing import List, Annotated
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Path, Body
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
 from basemodels.schema_base_models import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema, SchemaUpdateRequest
+from db import db
 
 router = APIRouter()
 
-client = AsyncIOMotorClient('mongodb://localhost:27017')
-db = client['reservation-system']
+
 collection = db['schemas']
 
 async def __get_schema(_id) -> InsertedSchema:
