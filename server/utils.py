@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Dict, Any, Literal
+from typing import Dict, Any, Literal, Annotated
 
-from pydantic import constr, conint, confloat, create_model, BaseModel
+from pydantic import constr, conint, confloat, create_model, BaseModel, Field
 
 
 def datetime_as_string(d: datetime):
@@ -33,41 +33,48 @@ schema = {
     }
 }
 
+def __build_num_constraints(fields: dict, required: bool, type_name: str):
+    constraints = {}
+    if fields.get("min") is not None:
+        constraints["ge"] = fields["min"]
+    if fields.get("max") is not None:
+        constraints["le"] = fields["max"]
+    
+    field_type = float if type_name == "float" else int
+    return (
+        Annotated[field_type, Field(**constraints)],
+        ... if required else None,
+    )
+
+
 def build_constrained_field(fields: Dict[str, Any]):
     type_name: str = fields.get("type")
     required: bool = fields.get("required", False)
     enum: list = fields.get("enum")
 
-    # Create field constraints
-    field_args = {}
+    # Handle enum fields
     if enum:
         return Literal[tuple(enum)], ... if required else None
 
+    # Handle string fields
     if type_name == "str":
+        constraints = {}
+        if fields.get("min_length") is not None:
+            constraints["min_length"] = fields["min_length"]
+        if fields.get("max_length") is not None:
+            constraints["max_length"] = fields["max_length"]
+        if fields.get("regex") is not None:
+            constraints["pattern"] = fields["regex"]
         return (
-            constr(
-                min_length=fields.get("min_length"),
-                max_length=fields.get("max_length"),
-                pattern=fields.get("regex")
-            ),
+            Annotated[str, Field(**constraints)],
             ... if required else None,
         )
 
-    if type_name == "int":
-        return (
-            conint(
-                ge=fields.get("min"),
-                le=fields.get("max")
-            ),
-            ... if required else None,
-        )
+    # Handle integer and float fields
+    if type_name == "int" or type_name == "float":
+        return __build_num_constraints(fields, required, type_name)
 
-    if type_name == "float":
-        return confloat(
-            ge=fields.get("min"),
-            le=fields.get("max")
-        )
-
+    # Handle basic types
     base_type = {
         "str": str,
         "int": int,
@@ -83,7 +90,6 @@ def build_pydantic_model(name: str, fields: Dict[str, Any]):
 
     for field_name, field_def in fields.items():
         model_fields[field_name] = build_constrained_field(field_def)
-
 
     return create_model(name, **model_fields)
 
