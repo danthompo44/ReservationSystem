@@ -30,7 +30,7 @@ class FieldDefinition(BaseModel):
     model_config = {
         "populate_by_name": True,
         "from_attributes": True,
-        "extra": "allow"
+        "exclude_none": True
     }
 
     type: Literal['str', 'int', 'boolean', 'float', 'list', 'date']
@@ -67,20 +67,48 @@ class FieldDefinition(BaseModel):
 
 
 class SchemaInsertRequest(BaseModel):
+    """
+    Represents a request to insert a schema.
+
+    This class is responsible for defining the structure of a schema insertion request,
+    including the schema name and its associated fields. It supports various configurations
+    for parsing the schema data and is particularly useful in applications requiring
+    schema validation and management.
+
+    :ivar schema_name: The name of the schema to be inserted.
+    :type schema_name: str
+    :ivar fields: A dictionary containing the field definitions for the schema,
+        where the keys are field names, and the values are `FieldDefinition` objects
+        describing the field's properties.
+    :type fields: Dict[str, FieldDefinition]
+    """
     schema_name: str
     fields: Dict[str, FieldDefinition]
 
     model_config = {
         "populate_by_name": True,
-        "from_attributes": True,
         "arbitrary_types_allowed": True,
-        "json_schema_extra": {"examples": [{}]},  # Optional: for OpenAPI documentation
+        "exclude_none": True
     }
 
 
 class SchemaUpdateRequest(BaseModel):
+    """
+    Represents a request to update a schema.
+
+    This class is designed to encapsulate the necessary information for
+    updating a schema, including its name and associated field definitions.
+    It leverages the Pydantic BaseModel for data validation and serialization.
+
+    :ivar name: The name of the schema to update. It is optional and can be
+        left as None if not provided.
+    :type name: Optional[str]
+    :ivar fields: A list of field definitions associated with the schema.
+        It is optional and can be None.
+    :type fields: Optional[List[FieldDefinition]]
+    """
     name: Optional[str] = None
-    parameters: Optional[List[FieldDefinition]] = None
+    fields: Optional[List[FieldDefinition]] = None
 
 
 # TODO - Update to have Object ID base basemodel
@@ -107,9 +135,10 @@ class InsertedSchema(SchemaInsertRequest):
     def serialize_object_id(self, v: ObjectId, _info):
         return str(v)
 
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True
+    }
 
 
 
@@ -124,6 +153,8 @@ class CreatedSchemaResponse(BaseModel):
     def serialize_object_id(self, v: ObjectId, _info):
         return str(v)
 
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "exclude_none": True
+    }

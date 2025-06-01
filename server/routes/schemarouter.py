@@ -24,13 +24,13 @@ async def __get_schema(_id) -> InsertedSchema:
 
 
 
-@router.post("/", response_model=CreatedSchemaResponse)
+@router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
 async def create_schema(schema: SchemaInsertRequest):
     existing_schema = await collection.find_one({"name": schema.schema_name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")
 
-    schema_data = schema.model_dump(exclude_none=True)
+    schema_data = schema.model_dump(exclude_unset=True, exclude_none=True)
 
     now = datetime.now()
     schema_data['created_at'] = now # Add created_at field
