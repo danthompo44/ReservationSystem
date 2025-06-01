@@ -107,8 +107,14 @@ class SchemaUpdateRequest(BaseModel):
         It is optional and can be None.
     :type fields: Optional[List[FieldDefinition]]
     """
-    name: Optional[str] = None
-    fields: Optional[List[FieldDefinition]] = None
+    schema_name: Optional[str] = None
+    fields: Optional[Dict[str, FieldDefinition]] = None
+
+    model_config = {
+        "populate_by_name": True,
+        "arbitrary_types_allowed": True,
+        "exclude_none": True
+    }
 
 
 # TODO - Update to have Object ID base basemodel

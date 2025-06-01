@@ -47,7 +47,7 @@ async def create_schema(schema: SchemaInsertRequest):
     return res_model
 
 
-@router.get("/", response_model=List[InsertedSchema])
+@router.get("/", response_model=List[InsertedSchema], response_model_exclude_none=True)
 async def read_schemas():
     schemas = []
     async for schema in collection.find():
@@ -55,17 +55,17 @@ async def read_schemas():
     return schemas
 
 
-@router.get("/{schema_id}", response_model=InsertedSchema)
+@router.get("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def read_schema(schema_id: str):
     return await __get_schema(schema_id)
 
 
-@router.put("/{schema_id}", response_model=InsertedSchema)
+@router.put("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def update_schema(
     schema_id: Annotated[str, Path(title="The schema id to update")],
     schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")]
 ):
-    update_dict = schema.model_dump()
+    update_dict = schema.model_dump(exclude_none=True)
     update_dict["updated_at"] = datetime.now()
     result = await collection.update_one({"_id": ObjectId(schema_id)}, {"$set": update_dict})
     if result.matched_count == 0:
@@ -75,7 +75,7 @@ async def update_schema(
     return latest
 
 
-@router.delete("/{schema_id}", response_model=SchemaDeletedResponse)
+@router.delete("/{schema_id}", response_model=SchemaDeletedResponse, response_model_exclude_none=True)
 async def delete_schema(schema_id: str):
     _id = PyObjectId(schema_id)
 
