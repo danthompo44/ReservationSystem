@@ -35,8 +35,8 @@ def test_client(async_mock_db):
 def __sim_schema() -> CreateSchemaRequest:
     """Helper function to create a sample SIM schema request."""
     fields = {
-        "msisdn": FieldDefinition(type="str", required=True, regex="44\d{9}"),
-        "imsi": FieldDefinition(type="str", required=True, regex="23(0|3)\d{12}"),
+        "msisdn": FieldDefinition(type="str", required=True, regex=r"44\d{9}"),
+        "imsi": FieldDefinition(type="str", required=True, regex=r"23(0|3)\d{12}"),
         "environment": FieldDefinition(type="str", required=True, enum=["Dev_1", "Dev_2", "Stable_1", "Stable2"])
     }
     req = CreateSchemaRequest(schema_name="SIM", fields=fields)
