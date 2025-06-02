@@ -25,7 +25,7 @@ class PyObjectId(ObjectId):
     def __str__(self) -> str:
         return str(super().__str__())
 
-class FieldDefinition(BaseModel):
+class   FieldDefinition(BaseModel):
 
     model_config = {
         "populate_by_name": True,
@@ -66,7 +66,7 @@ class FieldDefinition(BaseModel):
         return self
 
 
-class SchemaInsertRequest(BaseModel):
+class CreateSchemaRequest(BaseModel):
     """
     Represents a request to insert a schema.
 
@@ -131,7 +131,7 @@ class SchemaDeletedResponse(BaseModel):
         populate_by_name = True
         json_encoders = {ObjectId: str}
 
-class InsertedSchema(SchemaInsertRequest):
+class InsertedSchema(CreateSchemaRequest):
     id: PyObjectId = Field(alias="_id")
     created_at: datetime
     updated_at: datetime

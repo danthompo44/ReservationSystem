@@ -4,9 +4,9 @@ from typing import List, Annotated
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Path, Body
 
-from basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
-from basemodels.schema_base_models import CreatedSchemaResponse, SchemaInsertRequest, InsertedSchema, SchemaUpdateRequest
-from db import db
+from src.basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
+from src.basemodels.schema_base_models import CreatedSchemaResponse, CreateSchemaRequest, InsertedSchema, SchemaUpdateRequest
+from src.db import db
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def __get_schema(_id) -> InsertedSchema:
 
 
 @router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
-async def create_schema(schema: SchemaInsertRequest):
+async def create_schema(schema: CreateSchemaRequest):
     existing_schema = await collection.find_one({"name": schema.schema_name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")

@@ -2,11 +2,13 @@ import pytest
 from fastapi.testclient import TestClient
 from mongomock import MongoClient
 from fastapi import FastAPI
+
+from src.basemodels.schema_base_models import CreateSchemaRequest, FieldDefinition
 from src.routes.schemarouter import router
 from src.db import db  # Importing db here
 
 app = FastAPI()
-app.include_router(router)
+app.include_router(prefix="/schemas", router=router)
 
 client = TestClient(app)
 
@@ -22,8 +24,14 @@ def test_client(mongo_client):
     yield TestClient(app)
 
 def test_create_schema(test_client):
-    response = test_client.post("/schemas/", json={"schema_name": "Test Schema"})
-    assert response.status_code == 201
+    fields = {
+        "msisdn": FieldDefinition(type="str", required=True, regex="44\d{9}"),
+        "imsi": FieldDefinition(type="str", required=True, regex="23(0|3)\d{12}"),
+        "environment": FieldDefinition(type="str", required=True, enum=["Dev_1", "Dev_2", "Stable_1", "Stable2"])
+    }
+    req = CreateSchemaRequest(schema_name="SIM", fields=fields)
+    response = test_client.post("/schemas/", json=req.model_dump(exclude_none=True))
+    assert response.status_code == 200
     assert response.json()["message"] == "Schema created successfully"
 
 def test_create_schema_already_exists(test_client):
