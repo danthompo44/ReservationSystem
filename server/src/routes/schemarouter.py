@@ -2,18 +2,15 @@ from datetime import datetime
 from typing import List, Annotated
 
 from bson import ObjectId
-from fastapi import APIRouter, HTTPException, Path, Body
+from fastapi import APIRouter, HTTPException, Path, Body, Depends
 
 from src.basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
 from src.basemodels.schema_base_models import CreatedSchemaResponse, CreateSchemaRequest, InsertedSchema, SchemaUpdateRequest
-from src.db import db
+from src.db import get_db
 
 router = APIRouter()
 
-
-collection = db['schemas']
-
-async def __get_schema(_id) -> InsertedSchema:
+async def __get_schema(_id, collection) -> InsertedSchema:
     schema = await collection.find_one({"_id": ObjectId(_id)})
     if schema is None:
         raise HTTPException(status_code=404, detail="Schema not found")  #
@@ -24,7 +21,8 @@ async def __get_schema(_id) -> InsertedSchema:
 
 
 @router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
-async def create_schema(schema: CreateSchemaRequest):
+async def create_schema(schema: CreateSchemaRequest, db=Depends(get_db)):
+    collection = db['schemas']
     existing_schema = await collection.find_one({"name": schema.schema_name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")
@@ -47,7 +45,9 @@ async def create_schema(schema: CreateSchemaRequest):
 
 
 @router.get("/", response_model=List[InsertedSchema], response_model_exclude_none=True)
-async def read_schemas():
+async def read_schemas(db=Depends(get_db)):
+    collection = db['schemas']
+
     schemas = []
     async for schema in collection.find():
         schemas.append(InsertedSchema(**schema))  # Correctly format schema
@@ -55,28 +55,31 @@ async def read_schemas():
 
 
 @router.get("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
-async def read_schema(schema_id: str):
-    return await __get_schema(schema_id)
+async def read_schema(schema_id: str, db=Depends(get_db)):
+    return await __get_schema(schema_id, db)
 
 
 @router.put("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def update_schema(
     schema_id: Annotated[str, Path(title="The schema id to update")],
-    schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")]
+    schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")],
+        db = Depends(get_db)
 ):
+    collection = db["schemas"]
     update_dict = schema.model_dump(exclude_none=True)
     update_dict["updated_at"] = datetime.now()
     result = await collection.update_one({"_id": ObjectId(schema_id)}, {"$set": update_dict})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Schema not found")
 
-    latest = await __get_schema(schema_id)
+    latest = await __get_schema(schema_id, db)
     return latest
 
 
 @router.delete("/{schema_id}", response_model=SchemaDeletedResponse, response_model_exclude_none=True)
-async def delete_schema(schema_id: str):
+async def delete_schema(schema_id: str, db = Depends(get_db)):
     _id = PyObjectId(schema_id)
+    collection = db["schemas"]
 
     result = await collection.delete_one({"_id": _id})
     if result.deleted_count == 0:

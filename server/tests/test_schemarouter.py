@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from src.basemodels.schema_base_models import CreateSchemaRequest, FieldDefinition
-from src.db import db  # Importing db here
+from src.db import get_db  # Importing db here
 from src.routes.schemarouter import router
 
 # Create FastAPI app and include router
@@ -22,7 +22,7 @@ def mongo_client():
 @pytest.fixture
 def test_client(mongo_client):
     # ✅ Override the `db` dependency to use the mocked DB
-    app.dependency_overrides[db] = lambda: mongo_client['reservation-system']
+    app.dependency_overrides[get_db] = lambda: mongo_client['reservation-system']
     yield TestClient(app)
 
 def test_create_schema(test_client):
