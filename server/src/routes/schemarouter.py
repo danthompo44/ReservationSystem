@@ -23,7 +23,7 @@ async def __get_schema(_id, collection) -> InsertedSchema:
 @router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
 async def create_schema(schema: CreateSchemaRequest, db=Depends(get_db)):
     collection = db['schemas']
-    existing_schema = await collection.find_one({"name": schema.schema_name})
+    existing_schema = await collection.find_one({"schema_name": schema.schema_name})
     if existing_schema:
         raise HTTPException(status_code=400, detail="Schema already exists")
 
@@ -56,7 +56,7 @@ async def read_schemas(db=Depends(get_db)):
 
 @router.get("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def read_schema(schema_id: str, db=Depends(get_db)):
-    return await __get_schema(schema_id, db)
+    return await __get_schema(schema_id, db["schemas"])
 
 
 @router.put("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
@@ -72,7 +72,7 @@ async def update_schema(
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Schema not found")
 
-    latest = await __get_schema(schema_id, db)
+    latest = await __get_schema(schema_id, collection)
     return latest
 
 
