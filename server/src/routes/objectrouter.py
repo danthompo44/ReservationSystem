@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from bson import ObjectId
 
 from src.basemodels.object_base_models import CreateObjectResponse, CreateObjectRequest
@@ -7,16 +7,15 @@ from src.db import get_db
 from src.utils import build_pydantic_model
 
 router = APIRouter()
-db = get_db()
-
-objects_collection = db['objects']
-schemas_collection = db['schemas']  # Collection for schemas
 
 
 @router.post("/", response_model=CreateObjectResponse, response_model_exclude_none=True)
 async def create_object(
-        data: CreateObjectRequest
+        data: CreateObjectRequest,
+        db = Depends(get_db)
 ):
+    schemas_collection = db["schemas"]
+    objects_collection = db["objects"]
     schema = await schemas_collection.find_one({"_id": data.schema_id})
 
     if schema is None:
@@ -49,7 +48,8 @@ async def create_object(
 
 
 @router.get("/")
-async def read_objects():
+async def read_objects(db = Depends(get_db)):
+    objects_collection = db["objects"]
     objects = []
     async for obj in objects_collection.find():
         objects.append({**obj, "_id": str(obj["_id"])})  # Correctly format object
@@ -57,7 +57,8 @@ async def read_objects():
 
 
 @router.get("/{object_id}", response_model=dict)
-async def read_object(object_id: str):
+async def read_object(object_id: str, db = Depends(get_db)):
+    objects_collection = db["objects"]
     obj = await objects_collection.find_one({"_id": ObjectId(object_id)})
     if obj is None:
         raise HTTPException(status_code=404, detail="Object not found")
@@ -65,7 +66,8 @@ async def read_object(object_id: str):
 
 
 @router.put("/{object_id}", response_model=dict)
-async def update_object(object_id: str, object_data: dict):
+async def update_object(object_id: str, object_data: dict, db = Depends(get_db)):
+    objects_collection = db["objects"]
     result = await objects_collection.update_one({"_id": ObjectId(object_id)}, {"$set": object_data})
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Object not found")
@@ -73,7 +75,8 @@ async def update_object(object_id: str, object_data: dict):
 
 
 @router.delete("/{object_id}")
-async def delete_object(object_id: str):
+async def delete_object(object_id: str, db = Depends(get_db)):
+    objects_collection = db["objects"]
     result = await objects_collection.delete_one({"_id": ObjectId(object_id)})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Object not found")
