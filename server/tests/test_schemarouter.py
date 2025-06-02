@@ -1,25 +1,27 @@
+import mongomock
 import pytest
-from fastapi.testclient import TestClient
-from mongomock import MongoClient
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from src.basemodels.schema_base_models import CreateSchemaRequest, FieldDefinition
-from src.routes.schemarouter import router
 from src.db import db  # Importing db here
+from src.routes.schemarouter import router
 
+# Create FastAPI app and include router
 app = FastAPI()
 app.include_router(prefix="/schemas", router=router)
 
-client = TestClient(app)
+# ✅ FIXED: No global TestClient(app) here
 
 @pytest.fixture
 def mongo_client():
-    client = MongoClient()
+    client = mongomock.MongoClient()
     yield client
     client.drop_database('reservation-system')
 
 @pytest.fixture
 def test_client(mongo_client):
+    # ✅ Override the `db` dependency to use the mocked DB
     app.dependency_overrides[db] = lambda: mongo_client['reservation-system']
     yield TestClient(app)
 
