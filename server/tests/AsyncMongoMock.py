@@ -33,6 +33,7 @@ class AsyncMockCollection:
         # 🔁 Wrap the sync cursor in async-compatible wrapper. Allows for async to be called on iterables
         return AsyncMockCursor(self._collection.find(*args, **kwargs))
 
+
 class AsyncMockDB:
     def __init__(self, db):
         self._db = db

@@ -12,6 +12,7 @@ from tests.AsyncMongoMock import AsyncMockDB
 app = FastAPI()
 app.include_router(prefix="/schemas", router=router)
 
+
 # === Shared mongomock client across tests ===
 @pytest.fixture(scope="session")
 def mock_sync_client():
@@ -108,7 +109,6 @@ def test_read_schemas(test_client):
 def test_read_schema(test_client):
     """Test retrieving a specific schema by ID."""
     response = test_client.get("/schemas/")
-    body = response.json()
     # Get the first schema in the list, retrieve its ID ready for testing get_schema
     schema_id = response.json()[0]["_id"]
     response = test_client.get(f"/schemas/{schema_id}")
