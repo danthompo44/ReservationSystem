@@ -1,13 +1,15 @@
-from typing import List
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
+
 from bson import ObjectId
+from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
+
+from src.db import get_db
 
 router = APIRouter()
 
 client = AsyncIOMotorClient('mongodb://mongodb:27017')
-db = client['reservation-system']
+db = get_db()
 topologies_collection = db['topologies']
 
 

@@ -4,10 +4,11 @@ from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 
+from src.db import get_db
+
 router = APIRouter()
 
-client = AsyncIOMotorClient('mongodb://mongodb:27017')
-db = client['reservation-system']
+db = get_db()
 reservations_collection = db['reservations']
 topologies_collection = db['topologies']  # New collection for topologies
 

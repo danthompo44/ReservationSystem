@@ -1,14 +1,13 @@
-from typing import List, Annotated
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Body, Path
+from fastapi import APIRouter, HTTPException
 from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient
 
-from basemodels.object_base_models import CreateObjectResponse, CreateObjectRequest
-from db import db
-from utils import build_pydantic_model
+from src.basemodels.object_base_models import CreateObjectResponse, CreateObjectRequest
+from src.db import get_db
+from src.utils import build_pydantic_model
 
 router = APIRouter()
+db = get_db()
 
 objects_collection = db['objects']
 schemas_collection = db['schemas']  # Collection for schemas
