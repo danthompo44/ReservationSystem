@@ -18,10 +18,12 @@ def mock_sync_client():
     """Fixture to create a synchronous MongoDB client for testing."""
     return mongomock.MongoClient()
 
+
 @pytest.fixture(scope="session")
 def async_mock_db(mock_sync_client):
     """Fixture to create an asynchronous mock database for testing."""
     return AsyncMockDB(mock_sync_client["reservation-system"])
+
 
 @pytest.fixture(scope="session")
 def test_client(async_mock_db):
@@ -31,6 +33,7 @@ def test_client(async_mock_db):
 
     app.dependency_overrides[get_db] = override_get_db
     return TestClient(app)
+
 
 def __sim_schema() -> CreateSchemaRequest:
     """Helper function to create a sample SIM schema request."""
@@ -43,6 +46,7 @@ def __sim_schema() -> CreateSchemaRequest:
 
     return req.model_dump(exclude_none=True)
 
+
 def __ue_schema() -> CreateSchemaRequest:
     """Helper function to create a sample UE schema request."""
     fields = {
@@ -54,6 +58,7 @@ def __ue_schema() -> CreateSchemaRequest:
 
     return req.model_dump(exclude_none=True)
 
+
 def __building_schema() -> CreateSchemaRequest:
     """Helper function to create a sample Building schema request."""
     fields = {
@@ -63,6 +68,7 @@ def __building_schema() -> CreateSchemaRequest:
     req = CreateSchemaRequest(schema_name="Building", fields=fields)
 
     return req.model_dump(exclude_none=True)
+
 
 def __house_schema() -> CreateSchemaRequest:
     """Helper function to create a sample House schema request."""
@@ -75,17 +81,20 @@ def __house_schema() -> CreateSchemaRequest:
     req = CreateSchemaRequest(schema_name="House", fields=fields)
     return req.model_dump(exclude_none=True)
 
+
 def test_create_schema(test_client):
     """Test the creation of a new schema."""
     response = test_client.post("/schemas/", json=__sim_schema())
     assert response.status_code == 200
     assert response.json()["message"] == "Schema created successfully"
 
+
 def test_create_schema_already_exists(test_client):
     """Test the behaviour when trying to create a schema that already exists."""
     response = test_client.post("/schemas/", json=__sim_schema())
     assert response.status_code == 400
     assert response.json()["detail"] == "Schema already exists"
+
 
 def test_read_schemas(test_client):
     """Test retrieving all schemas."""
@@ -94,6 +103,7 @@ def test_read_schemas(test_client):
     response = test_client.get("/schemas/")
     assert response.status_code == 200
     assert len(response.json()) == 2
+
 
 def test_read_schema(test_client):
     """Test retrieving a specific schema by ID."""
@@ -106,11 +116,13 @@ def test_read_schema(test_client):
     # Call SIM schema as that will be the first object in the db
     assert response.json()["schema_name"] == __sim_schema()["schema_name"]
 
+
 def test_read_schema_not_found(test_client):
     """Test the behaviour when trying to read a schema that does not exist."""
     response = test_client.get(f"/schemas/{PyObjectId()}")
     assert response.status_code == 404
     assert response.json()["detail"] == "Schema not found"
+
 
 def test_update_schema(test_client):
     """Test updating an existing schema."""
@@ -126,6 +138,7 @@ def test_update_schema(test_client):
     assert response.status_code == 200
     assert response.json()["fields"]["country"]["enum"] == enum
 
+
 def test_update_schema_not_found(test_client):
     """Test the behaviour when trying to update a schema that does not exist."""
     enum = ["GB", "US", "DE", "FR", "BE", "ROM"]
@@ -137,6 +150,7 @@ def test_update_schema_not_found(test_client):
     assert response.status_code == 404
     assert response.json()["detail"] == "Schema not found"
 
+
 def test_delete_schema(test_client):
     """Test deleting an existing schema."""
     response = test_client.post("/schemas/", json=__house_schema())
@@ -144,6 +158,7 @@ def test_delete_schema(test_client):
     response = test_client.delete(f"/schemas/{schema_id}")
     assert response.status_code == 200
     assert response.json()["detail"] == "Schema deleted successfully"
+
 
 def test_delete_schema_not_found(test_client):
     """Test the behaviour when trying to delete a schema that does not exist."""

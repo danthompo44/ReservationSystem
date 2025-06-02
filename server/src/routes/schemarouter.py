@@ -10,6 +10,7 @@ from src.db import get_db
 
 router = APIRouter()
 
+
 async def __get_schema(_id: str, collection) -> InsertedSchema:
     """
     Retrieve a schema from the database by its ID.
@@ -30,6 +31,7 @@ async def __get_schema(_id: str, collection) -> InsertedSchema:
 
     res_model = InsertedSchema(**schema)
     return res_model
+
 
 @router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
 async def create_schema(schema: CreateSchemaRequest, db=Depends(get_db)):
@@ -67,6 +69,7 @@ async def create_schema(schema: CreateSchemaRequest, db=Depends(get_db)):
     res_model = CreatedSchemaResponse(**res)
     return res_model
 
+
 @router.get("/", response_model=List[InsertedSchema], response_model_exclude_none=True)
 async def read_schemas(db=Depends(get_db)):
     """
@@ -86,6 +89,7 @@ async def read_schemas(db=Depends(get_db)):
         schemas.append(InsertedSchema(**schema))  # Correctly format schema
     return schemas
 
+
 @router.get("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def read_schema(schema_id: str, db=Depends(get_db)):
     """
@@ -102,6 +106,7 @@ async def read_schema(schema_id: str, db=Depends(get_db)):
     - HTTPException: If the schema is not found, a 404 error is raised.
     """
     return await __get_schema(schema_id, db["schemas"])
+
 
 @router.put("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def update_schema(
@@ -132,6 +137,7 @@ async def update_schema(
 
     latest = await __get_schema(schema_id, collection)
     return latest
+
 
 @router.delete("/{schema_id}", response_model=SchemaDeletedResponse, response_model_exclude_none=True)
 async def delete_schema(schema_id: str, db=Depends(get_db)):
