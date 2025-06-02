@@ -38,4 +38,5 @@ jobs:
       run: |
         ls -lrth
         pwd
-        pytest server
+        cd server
+        pytest
