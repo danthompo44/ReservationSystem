@@ -1,6 +1,6 @@
 # Custom License: Internal Use with Commercial Restriction
 
-Copyright © [YEAR] [Your Name or Project Name]
+Copyright © 2025 Reservation System
 
 Permission is hereby granted, free of charge, to any person or organization (the "User") to use, copy, modify, and deploy this software and associated documentation files (the "Software") for internal, non-commercial purposes, subject to the following conditions:
 
@@ -26,7 +26,7 @@ Permission is hereby granted, free of charge, to any person or organization (the
    The original author(s) must be clearly credited in any derivative works, documentation, or public references to the Software.
 
 5. **Commercial Licensing**  
-   For any commercial redistribution, resale, external use, or revenue-generating activity, please contact [your-email@example.com] to obtain a commercial license.
+   For any commercial redistribution, resale, external use, or revenue-generating activity, please contact info@danthompsonguitar.co.uk to obtain a commercial license.
 
 6. **Disclaimer of Warranty**  
    The Software is provided “as is,” without warranty of any kind, express or implied, including but not limited to fitness for a particular purpose or merchantability.
