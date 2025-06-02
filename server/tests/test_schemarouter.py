@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from mongomock import MongoClient
 from fastapi import FastAPI
 from src.routes.schemarouter import router
+from src.db import db  # Importing db here
 
 app = FastAPI()
 app.include_router(router)
