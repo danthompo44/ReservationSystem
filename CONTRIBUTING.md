@@ -1,4 +1,4 @@
-# Contributing to [Project Name]
+# Contributing to Reservation System
 
 We welcome contributions of code, documentation, testing, and ideas. This guide explains how to contribute and the terms under which contributions are accepted.
 
@@ -37,6 +37,6 @@ This helps us protect the long-term integrity and value of the project, while en
 
 ## ❓ Need Help?
 
-If you have questions about how to contribute or how your contribution will be used or credited, please contact us at [your-email@example.com].
+If you have questions about how to contribute or how your contribution will be used or credited, please contact us at info@danthompsonguitar.co.uk.
 
-Thanks for helping make **[Project Name]** better!
+Thanks for helping make **Reservation System** better!
