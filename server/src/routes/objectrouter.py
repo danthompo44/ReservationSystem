@@ -12,6 +12,7 @@ db = get_db()
 objects_collection = db['objects']
 schemas_collection = db['schemas']  # Collection for schemas
 
+
 @router.post("/", response_model=CreateObjectResponse, response_model_exclude_none=True)
 async def create_object(
         data: CreateObjectRequest

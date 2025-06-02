@@ -33,13 +33,14 @@ schema = {
     }
 }
 
+
 def __build_num_constraints(fields: dict, required: bool, type_name: str):
     constraints = {}
     if fields.get("min") is not None:
         constraints["ge"] = fields["min"]
     if fields.get("max") is not None:
         constraints["le"] = fields["max"]
-    
+
     field_type = float if type_name == "float" else int
     return (
         Annotated[field_type, Field(**constraints)],
@@ -92,7 +93,6 @@ def build_pydantic_model(name: str, fields: Dict[str, Any]):
         model_fields[field_name] = build_constrained_field(field_def)
 
     return create_model(name, **model_fields)
-
 
 # model = build_pydantic_model(schema["schema_name"], schema["fields"])
 # model_instance = model(name="John", price=10.0, category="book")

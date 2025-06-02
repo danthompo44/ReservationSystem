@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Literal, Any, Optional, Dict
 
 from bson import ObjectId
-from pydantic import BaseModel, Field, GetCoreSchemaHandler, field_serializer, root_validator, model_validator
+from pydantic import BaseModel, Field, GetCoreSchemaHandler, field_serializer, model_validator
 from pydantic_core import core_schema
 
 
@@ -25,7 +25,8 @@ class PyObjectId(ObjectId):
     def __str__(self) -> str:
         return str(super().__str__())
 
-class   FieldDefinition(BaseModel):
+
+class FieldDefinition(BaseModel):
 
     model_config = {
         "populate_by_name": True,
@@ -33,8 +34,8 @@ class   FieldDefinition(BaseModel):
         "exclude_none": True
     }
 
-    type: Literal['str', 'int', 'boolean', 'float', 'list', 'date']
-    required: bool = True
+    type: Optional[Literal['str', 'int', 'boolean', 'float', 'list', 'date']] = "str"
+    required: Optional[bool] = True
     min_length: Optional[int] = None
     max_length: Optional[int] = None
     regex: Optional[str] = None
@@ -131,6 +132,7 @@ class SchemaDeletedResponse(BaseModel):
         populate_by_name = True
         json_encoders = {ObjectId: str}
 
+
 class InsertedSchema(CreateSchemaRequest):
     id: PyObjectId = Field(alias="_id")
     created_at: datetime
@@ -145,8 +147,6 @@ class InsertedSchema(CreateSchemaRequest):
         "populate_by_name": True,
         "arbitrary_types_allowed": True
     }
-
-
 
 
 class CreatedSchemaResponse(BaseModel):

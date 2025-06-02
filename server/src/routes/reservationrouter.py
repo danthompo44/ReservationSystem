@@ -2,7 +2,6 @@ from datetime import datetime
 
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException
-from motor.motor_asyncio import AsyncIOMotorClient
 
 from src.db import get_db
 
