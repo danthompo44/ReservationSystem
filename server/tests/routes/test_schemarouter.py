@@ -166,3 +166,62 @@ def test_delete_schema_not_found(test_client):
     assert response.status_code == 404
     assert response.json()["detail"] == "Schema not found"
 
+
+def test_create_schema_with_invalid_string_constraints(test_client):
+    """Test that a 422 response is returned when a string FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidStringSchema",
+        "fields": {
+            "field1": FieldDefinition(type="str", min=1, max=10).dict()
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_int_constraints(test_client):
+    """Test that a 422 response is returned when an integer FieldDefinition has min_length/max_length constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidIntSchema",
+        "fields": {
+            "field1": FieldDefinition(type="int", min_length=1).dict()
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_float_constraints(test_client):
+    """Test that a 422 response is returned when a float FieldDefinition has min_length/max_length constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidFloatSchema",
+        "fields": {
+            "field1": FieldDefinition(type="float", min_length=1).dict()
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_boolean_constraints(test_client):
+    """Test that a 422 response is returned when a boolean FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidBooleanSchema",
+        "fields": {
+            "field1": FieldDefinition(type="boolean", min=0, max=1).dict()
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_list_constraints(test_client):
+    """Test that a 422 response is returned when a list FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidListSchema",
+        "fields": {
+            "field1": FieldDefinition(type="list", min=1, max=10).dict()
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
