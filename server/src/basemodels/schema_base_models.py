@@ -46,7 +46,7 @@ class FieldDefinition(BaseModel):
     max: Optional[float] = None
 
     @model_validator(mode="after")
-    def validate_constraints(self) -> 'FieldDefinition':
+    def constraints(self) -> 'FieldDefinition':
         if self.type == "str":
             if self.min is not None or self.max is not None:
                 raise ValueError("min and max constraints are not supported for strings")
