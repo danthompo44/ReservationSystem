@@ -3,7 +3,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.basemodels.schema_base_models import CreateSchemaRequest, FieldDefinition, PyObjectId
+from src.basemodels.schema_base_models import CreateSchemaRequest, PyObjectId
 from src.db import get_db  # Importing db here
 from src.routes.schemarouter import router
 from tests.AsyncMongoMock import AsyncMockDB
@@ -39,48 +39,93 @@ def test_client(async_mock_db):
 def __sim_schema() -> CreateSchemaRequest:
     """Helper function to create a sample SIM schema request."""
     fields = {
-        "msisdn": FieldDefinition(type="str", required=True, regex=r"44\d{9}"),
-        "imsi": FieldDefinition(type="str", required=True, regex=r"23(0|3)\d{12}"),
-        "environment": FieldDefinition(type="str", required=True, enum=["Dev_1", "Dev_2", "Stable_1", "Stable2"])
+        "msisdn": {
+            "type": "str",
+            "required": True,
+            "regex": r"44\d{9}"
+        },
+        "imsi": {
+            "type": "str",
+            "required": True,
+            "regex": r"23(0|3)\d{12}"
+        },
+        "environment": {
+            "type": "str",
+            "required": True,
+            "enum": ["Dev_1", "Dev_2", "Stable_1", "Stable2"]
+        }
     }
-    req = CreateSchemaRequest(schema_name="SIM", fields=fields)
-
-    return req.model_dump(exclude_none=True)
+    return {
+        "schema_name": "SIM",
+        "fields": fields
+    }
 
 
 def __ue_schema() -> CreateSchemaRequest:
     """Helper function to create a sample UE schema request."""
     fields = {
-        "os": FieldDefinition(type="str", required=True, enum=["android", "iOS"]),
-        "device_id": FieldDefinition(type="str", required=True)
+        "os": {
+            "type": "str",
+            "required": True,
+            "enum": ["android", "iOS"]
+        },
+        "device_id": {
+            "type": "str",
+            "required": True
+        }
     }
-
-    req = CreateSchemaRequest(schema_name="UE", fields=fields)
-
-    return req.model_dump(exclude_none=True)
+    return {
+        "schema_name": "UE",
+        "fields": fields
+    }
 
 
 def __building_schema() -> CreateSchemaRequest:
     """Helper function to create a sample Building schema request."""
     fields = {
-        "country": FieldDefinition(type="str", required=True, enum=["GB", "US", "DE", "FR"]),
-        "city": FieldDefinition(type="str", required=True)
+        "country": {
+            "type": "str",
+            "required": True,
+            "enum": ["GB", "US", "DE", "FR"]
+        },
+        "city": {
+            "type": "str",
+            "required": True
+        }
     }
-    req = CreateSchemaRequest(schema_name="Building", fields=fields)
-
-    return req.model_dump(exclude_none=True)
+    return {
+        "schema_name": "Building",
+        "fields": fields
+    }
 
 
 def __house_schema() -> CreateSchemaRequest:
     """Helper function to create a sample House schema request."""
     fields = {
-        "country": FieldDefinition(type="str", required=True, enum=["GB", "US", "DE", "FR"]),
-        "city": FieldDefinition(type="str", required=True),
-        "address": FieldDefinition(type="str", required=True),
-        "floor": FieldDefinition(type="int", required=True, min=1, max=100)
+        "country": {
+            "type": "str",
+            "required": True,
+            "enum": ["GB", "US", "DE", "FR"]
+        },
+        "city": {
+            "type": "str",
+            "required": True
+        },
+        "address": {
+            "type": "str",
+            "required": True
+        },
+        "floor": {
+            "type": "int",
+            "required": True,
+            "min": 1,
+            "max": 100
+        }
     }
-    req = CreateSchemaRequest(schema_name="House", fields=fields)
-    return req.model_dump(exclude_none=True)
+    return {
+        "schema_name": "House",
+        "fields": fields
+    }
 
 
 def test_create_schema(test_client):
@@ -172,7 +217,11 @@ def test_create_schema_with_invalid_string_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidStringSchema",
         "fields": {
-            "field1": FieldDefinition(type="str", min=1, max=10).model_dump(exclude_none=True)
+            "field1": {
+                "type": "str",
+                "min": 1,
+                "max": 10
+            }
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -184,7 +233,10 @@ def test_create_schema_with_invalid_int_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidIntSchema",
         "fields": {
-            "field1": FieldDefinition(type="int", min_length=1).model_dump(exclude_none=True)
+            "field1": {
+                "type": "int",
+                "min_length": 1
+            }
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -196,7 +248,10 @@ def test_create_schema_with_invalid_float_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidFloatSchema",
         "fields": {
-            "field1": FieldDefinition(type="float", min_length=1).model_dump(exclude_none=True)
+            "field1": {
+                "type": "float",
+                "min_length": 1
+            }
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -208,7 +263,11 @@ def test_create_schema_with_invalid_boolean_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidBooleanSchema",
         "fields": {
-            "field1": FieldDefinition(type="boolean", min=0, max=1).model_dump(exclude_none=True)
+            "field1": {
+                "type": "boolean",
+                "min": 0,
+                "max": 1
+            }
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -220,7 +279,11 @@ def test_create_schema_with_invalid_list_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidListSchema",
         "fields": {
-            "field1": FieldDefinition(type="list", min=1, max=10).model_dump(exclude_none=True)
+            "field1": {
+                "type": "list",
+                "min": 1,
+                "max": 10
+            }
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
