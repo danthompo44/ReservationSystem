@@ -45,28 +45,40 @@ class FieldDefinition(BaseModel):
     min: Optional[float] = None
     max: Optional[float] = None
 
+    def _validate_str(self):
+        if self.min is not None or self.max is not None:
+            raise ValueError("min and max constraints are not supported for strings")
+
+        if self.regex is not None:
+            if self.min_length is not None or self.max_length is not None:
+                raise ValueError("regex and min_length and max_length not supported for strings")
+
+    def _validate_number(self):
+        if self.min_length is not None or self.max_length is not None or self.regex is not None:
+            raise ValueError("min_length, max_length and regex constraints are not supported for integers and floats")
+
+    def _validate_boolean(self):
+        if self.min is not None or self.max is not None or self.regex is not None:
+            raise ValueError("min, max and regex constraints are not supported for booleans")
+
+    def _validate_list(self):
+        # TODO - Is regex required for validation?
+        if self.min is not None or self.max is not None:
+            raise ValueError("min and max constraints are not supported for lists")
+
     @model_validator(mode="after")
     def constraints(self) -> 'FieldDefinition':
         if self.type == "str":
-            if self.min is not None or self.max is not None:
-                raise ValueError("min and max constraints are not supported for strings")
-
-            if self.regex is not None:
-                if self.min_length is not None or self.max_length is not None:
-                    raise ValueError("regex and min_length and max_length not supported for strings")
+            self._validate_str()
 
         if self.type in ["int", "float"]:
-            if self.min_length is not None or self.max_length is not None or self.regex is not None:
-                raise ValueError("min_length, max_length and regex constraints are not supported for integers and floats")
+            self._validate_number()
 
         if self.type == "boolean":
-            if self.min is not None or self.max is not None or self.regex is not None:
-                raise ValueError("min, max and regex constraints are not supported for booleans")
+            self._validate_boolean()
 
         if self.type == "list":
-            # TODO - Is regex required for validation?
-            if self.min is not None or self.max is not None:
-                raise ValueError("min and max constraints are not supported for lists")
+            self._validate_list()
 
         return self
 

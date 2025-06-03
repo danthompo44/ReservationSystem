@@ -3,7 +3,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.basemodels.schema_base_models import CreateSchemaRequest, PyObjectId
+from src.basemodels.schema_base_models import CreateSchemaRequest, PyObjectId, FieldDefinition
 from src.db import get_db  # Importing db here
 from src.routes.schemarouter import router
 from tests.AsyncMongoMock import AsyncMockDB
@@ -39,93 +39,48 @@ def test_client(async_mock_db):
 def __sim_schema() -> CreateSchemaRequest:
     """Helper function to create a sample SIM schema request."""
     fields = {
-        "msisdn": {
-            "type": "str",
-            "required": True,
-            "regex": r"44\d{9}"
-        },
-        "imsi": {
-            "type": "str",
-            "required": True,
-            "regex": r"23(0|3)\d{12}"
-        },
-        "environment": {
-            "type": "str",
-            "required": True,
-            "enum": ["Dev_1", "Dev_2", "Stable_1", "Stable2"]
-        }
+        "msisdn": FieldDefinition(type="str", required=True, regex=r"44\d{9}"),
+        "imsi": FieldDefinition(type="str", required=True, regex=r"23(0|3)\d{12}"),
+        "environment": FieldDefinition(type="str", required=True, enum=["Dev_1", "Dev_2", "Stable_1", "Stable2"])
     }
-    return {
-        "schema_name": "SIM",
-        "fields": fields
-    }
+    req = CreateSchemaRequest(schema_name="SIM", fields=fields)
+
+    return req.model_dump(exclude_none=True)
 
 
 def __ue_schema() -> CreateSchemaRequest:
     """Helper function to create a sample UE schema request."""
     fields = {
-        "os": {
-            "type": "str",
-            "required": True,
-            "enum": ["android", "iOS"]
-        },
-        "device_id": {
-            "type": "str",
-            "required": True
-        }
+        "os": FieldDefinition(type="str", required=True, enum=["android", "iOS"]),
+        "device_id": FieldDefinition(type="str", required=True)
     }
-    return {
-        "schema_name": "UE",
-        "fields": fields
-    }
+    req = CreateSchemaRequest(schema_name="UE", fields=fields)
+
+    return req.model_dump(exclude_none=True)
 
 
 def __building_schema() -> CreateSchemaRequest:
     """Helper function to create a sample Building schema request."""
     fields = {
-        "country": {
-            "type": "str",
-            "required": True,
-            "enum": ["GB", "US", "DE", "FR"]
-        },
-        "city": {
-            "type": "str",
-            "required": True
-        }
+        "country": FieldDefinition(type="str", required=True, enum=["GB", "US", "DE", "FR"]),
+        "city": FieldDefinition(type="str", required=True)
     }
-    return {
-        "schema_name": "Building",
-        "fields": fields
-    }
+    req = CreateSchemaRequest(schema_name="Building", fields=fields)
+
+    return req.model_dump(exclude_none=True)
 
 
 def __house_schema() -> CreateSchemaRequest:
     """Helper function to create a sample House schema request."""
     fields = {
-        "country": {
-            "type": "str",
-            "required": True,
-            "enum": ["GB", "US", "DE", "FR"]
-        },
-        "city": {
-            "type": "str",
-            "required": True
-        },
-        "address": {
-            "type": "str",
-            "required": True
-        },
-        "floor": {
-            "type": "int",
-            "required": True,
-            "min": 1,
-            "max": 100
-        }
+        "country": FieldDefinition(type="str", required=True, enum=["GB", "US", "DE", "FR"]),
+        "city": FieldDefinition(type="str", required=True),
+        "address": FieldDefinition(type="str", required=True),
+        "floor": FieldDefinition(type="int", required=True, min=1, max=100)
     }
-    return {
-        "schema_name": "House",
-        "fields": fields
-    }
+
+    req = CreateSchemaRequest(schema_name="House", fields=fields)
+    return req.model_dump(exclude_none=True)
 
 
 def test_create_schema(test_client):
