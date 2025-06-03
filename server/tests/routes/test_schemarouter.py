@@ -172,7 +172,7 @@ def test_create_schema_with_invalid_string_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidStringSchema",
         "fields": {
-            "field1": FieldDefinition(type="str", min=1, max=10).dict()
+            "field1": FieldDefinition(type="str", min=1, max=10).model_dump(exclude_none=True)
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -184,7 +184,7 @@ def test_create_schema_with_invalid_int_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidIntSchema",
         "fields": {
-            "field1": FieldDefinition(type="int", min_length=1).dict()
+            "field1": FieldDefinition(type="int", min_length=1).model_dump(exclude_none=True)
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -196,7 +196,7 @@ def test_create_schema_with_invalid_float_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidFloatSchema",
         "fields": {
-            "field1": FieldDefinition(type="float", min_length=1).dict()
+            "field1": FieldDefinition(type="float", min_length=1).model_dump(exclude_none=True)
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -208,7 +208,7 @@ def test_create_schema_with_invalid_boolean_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidBooleanSchema",
         "fields": {
-            "field1": FieldDefinition(type="boolean", min=0, max=1).dict()
+            "field1": FieldDefinition(type="boolean", min=0, max=1).model_dump(exclude_none=True)
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
@@ -220,7 +220,7 @@ def test_create_schema_with_invalid_list_constraints(test_client):
     invalid_schema = {
         "schema_name": "InvalidListSchema",
         "fields": {
-            "field1": FieldDefinition(type="list", min=1, max=10).dict()
+            "field1": FieldDefinition(type="list", min=1, max=10).model_dump(exclude_none=True)
         }
     }
     response = test_client.post("/schemas/", json=invalid_schema)
