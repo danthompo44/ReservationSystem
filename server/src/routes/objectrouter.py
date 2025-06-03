@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/", response_model=CreateObjectResponse, response_model_exclude_none=True)
 async def create_object(
         data: CreateObjectRequest,
-        db = Depends(get_db)
+        db=Depends(get_db)
 ):
     schemas_collection = db["schemas"]
     objects_collection = db["objects"]
@@ -48,7 +48,7 @@ async def create_object(
 
 
 @router.get("/")
-async def read_objects(db = Depends(get_db)):
+async def read_objects(db=Depends(get_db)):
     objects_collection = db["objects"]
     objects = []
     async for obj in objects_collection.find():
@@ -57,7 +57,7 @@ async def read_objects(db = Depends(get_db)):
 
 
 @router.get("/{object_id}", response_model=dict)
-async def read_object(object_id: str, db = Depends(get_db)):
+async def read_object(object_id: str, db=Depends(get_db)):
     objects_collection = db["objects"]
     obj = await objects_collection.find_one({"_id": ObjectId(object_id)})
     if obj is None:
@@ -66,7 +66,7 @@ async def read_object(object_id: str, db = Depends(get_db)):
 
 
 @router.put("/{object_id}", response_model=dict)
-async def update_object(object_id: str, object_data: dict, db = Depends(get_db)):
+async def update_object(object_id: str, object_data: dict, db=Depends(get_db)):
     objects_collection = db["objects"]
     result = await objects_collection.update_one({"_id": ObjectId(object_id)}, {"$set": object_data})
     if result.matched_count == 0:
@@ -75,7 +75,7 @@ async def update_object(object_id: str, object_data: dict, db = Depends(get_db))
 
 
 @router.delete("/{object_id}")
-async def delete_object(object_id: str, db = Depends(get_db)):
+async def delete_object(object_id: str, db=Depends(get_db)):
     objects_collection = db["objects"]
     result = await objects_collection.delete_one({"_id": ObjectId(object_id)})
     if result.deleted_count == 0:

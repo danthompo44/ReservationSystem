@@ -3,7 +3,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from src.basemodels.schema_base_models import CreateSchemaRequest, FieldDefinition, PyObjectId
+from src.basemodels.schema_base_models import CreateSchemaRequest, PyObjectId, FieldDefinition
 from src.db import get_db  # Importing db here
 from src.routes.schemarouter import router
 from tests.AsyncMongoMock import AsyncMockDB
@@ -54,7 +54,6 @@ def __ue_schema() -> CreateSchemaRequest:
         "os": FieldDefinition(type="str", required=True, enum=["android", "iOS"]),
         "device_id": FieldDefinition(type="str", required=True)
     }
-
     req = CreateSchemaRequest(schema_name="UE", fields=fields)
 
     return req.model_dump(exclude_none=True)
@@ -79,6 +78,7 @@ def __house_schema() -> CreateSchemaRequest:
         "address": FieldDefinition(type="str", required=True),
         "floor": FieldDefinition(type="int", required=True, min=1, max=100)
     }
+
     req = CreateSchemaRequest(schema_name="House", fields=fields)
     return req.model_dump(exclude_none=True)
 
@@ -165,3 +165,81 @@ def test_delete_schema_not_found(test_client):
     response = test_client.delete(f"/schemas/{PyObjectId()}")
     assert response.status_code == 404
     assert response.json()["detail"] == "Schema not found"
+
+
+def test_create_schema_with_invalid_string_constraints(test_client):
+    """Test that a 422 response is returned when a string FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidStringSchema",
+        "fields": {
+            "field1": {
+                "type": "str",
+                "min": 1,
+                "max": 10
+            }
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_int_constraints(test_client):
+    """Test that a 422 response is returned when an integer FieldDefinition has min_length/max_length constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidIntSchema",
+        "fields": {
+            "field1": {
+                "type": "int",
+                "min_length": 1
+            }
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_float_constraints(test_client):
+    """Test that a 422 response is returned when a float FieldDefinition has min_length/max_length constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidFloatSchema",
+        "fields": {
+            "field1": {
+                "type": "float",
+                "min_length": 1
+            }
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_boolean_constraints(test_client):
+    """Test that a 422 response is returned when a boolean FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidBooleanSchema",
+        "fields": {
+            "field1": {
+                "type": "boolean",
+                "min": 0,
+                "max": 1
+            }
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422
+
+
+def test_create_schema_with_invalid_list_constraints(test_client):
+    """Test that a 422 response is returned when a list FieldDefinition has min/max constraints."""
+    invalid_schema = {
+        "schema_name": "InvalidListSchema",
+        "fields": {
+            "field1": {
+                "type": "list",
+                "min": 1,
+                "max": 10
+            }
+        }
+    }
+    response = test_client.post("/schemas/", json=invalid_schema)
+    assert response.status_code == 422

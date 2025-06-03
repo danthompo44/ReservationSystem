@@ -4,8 +4,9 @@ from typing import List, Annotated
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Path, Body, Depends
 
-from src.basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId
-from src.basemodels.schema_base_models import CreatedSchemaResponse, CreateSchemaRequest, InsertedSchema, SchemaUpdateRequest
+from src.basemodels.schema_base_models import SchemaDeletedResponse, PyObjectId, example_create_request
+from src.basemodels.schema_base_models import CreatedSchemaResponse, CreateSchemaRequest, InsertedSchema, \
+    SchemaUpdateRequest
 from src.db import get_db
 
 router = APIRouter()
@@ -34,7 +35,12 @@ async def __get_schema(_id: str, collection) -> InsertedSchema:
 
 
 @router.post("/", response_model=CreatedSchemaResponse, response_model_exclude_none=True)
-async def create_schema(schema: CreateSchemaRequest, db=Depends(get_db)):
+async def create_schema(schema: CreateSchemaRequest = Body(
+    ...,
+    examples=[example_create_request.model_dump(exclude_none=True)]
+    ),
+    db=Depends(get_db)
+):
     """
     Create a new schema in the database.
 
@@ -110,9 +116,9 @@ async def read_schema(schema_id: str, db=Depends(get_db)):
 
 @router.put("/{schema_id}", response_model=InsertedSchema, response_model_exclude_none=True)
 async def update_schema(
-    schema_id: Annotated[str, Path(title="The schema id to update")],
-    schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")],
-    db=Depends(get_db)
+        schema_id: Annotated[str, Path(title="The schema id to update")],
+        schema: Annotated[SchemaUpdateRequest, Body(title="The parameters to be updated")],
+        db=Depends(get_db)
 ):
     """
     Update an existing schema in the database.
