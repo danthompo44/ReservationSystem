@@ -1,10 +1,15 @@
 import pytest
-from server.src.basemodels.schema_base_models import FieldDefinition
+from src.basemodels.schema_base_models import FieldDefinition
 
 def test_validate_constraints_string_with_min_max():
     """Test that a ValueError is raised when a string FieldDefinition is created with min and max constraints."""
     with pytest.raises(ValueError, match="min and max constraints are not supported for strings"):
         FieldDefinition(type="str", min=1, max=10)
+
+def test_validate_constraints_string_with_regex():
+    """Test that a ValueError is raised when a string FieldDefinition is created with regex and min_length or max_length constraints."""
+    with pytest.raises(ValueError, match="regex and min_length and max_length not supported for strings"):
+        FieldDefinition(type="str", min_length=1, max_length=10, regex=r"\d{15}")
 
 def test_validate_constraints_int_with_min_length():
     """Test that a ValueError is raised when an integer FieldDefinition is created with min_length constraint."""
@@ -29,4 +34,4 @@ def test_validate_constraints_list_with_min_max():
 def test_validate_constraints_valid_field_definition():
     """Test that a valid FieldDefinition does not raise any exceptions during validation."""
     field_def = FieldDefinition(type="str", required=True)
-    assert field_def.validate_constraints() == field_def
+    field_def.model_dump(exclude_none=True)

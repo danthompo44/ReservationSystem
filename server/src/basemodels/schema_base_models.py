@@ -47,9 +47,13 @@ class FieldDefinition(BaseModel):
 
     @model_validator(mode="after")
     def validate_constraints(self) -> 'FieldDefinition':
-        if self.type == "string":
+        if self.type == "str":
             if self.min is not None or self.max is not None:
                 raise ValueError("min and max constraints are not supported for strings")
+
+            if self.regex is not None:
+                if self.min_length is not None or self.max_length is not None:
+                    raise ValueError("regex and min_length and max_length not supported for strings")
 
         if self.type in ["int", "float"]:
             if self.min_length is not None or self.max_length is not None or self.regex is not None:
@@ -128,9 +132,10 @@ class SchemaDeletedResponse(BaseModel):
     def serialize_object_id(self, v: ObjectId, _info):
         return str(v)
 
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
+    model_config = {
+        "populate_by_name": True,
+        "json_encoder": {ObjectId: str}
+    }
 
 
 class InsertedSchema(CreateSchemaRequest):
@@ -164,3 +169,11 @@ class CreatedSchemaResponse(BaseModel):
         "arbitrary_types_allowed": True,
         "exclude_none": True
     }
+
+
+example_create_request = CreateSchemaRequest(schema_name="SIM", fields={
+    "imsi": FieldDefinition(type="str", required=True, regex=r"$2343(0|3)\d{10}"),
+    "msisdn": FieldDefinition(type="str", required=True, regex=r"44\d{9}"),
+    "environment": FieldDefinition(type="str", required=True, enum=["Dev_1", "Dev_2", "Stable_1", "Stable_2", "Production"]),
+    "use_count": FieldDefinition(type="int", required=True, default=0, min=0, max=10000),
+})
