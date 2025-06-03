@@ -1,4 +1,4 @@
-# Contributing to Reservation System
+# Contributing to Preservation
 
 We welcome contributions of code, documentation, testing, and ideas. This guide explains how to contribute and the terms under which contributions are accepted.
 
